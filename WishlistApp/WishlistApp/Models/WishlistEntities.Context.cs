@@ -27,6 +27,9 @@ namespace WishlistApp.Models
     
         public DbSet<Friendship> Friendships { get; set; }
         public DbSet<FriendshipRequest> FriendshipRequests { get; set; }
+        public DbSet<Picture> Pictures { get; set; }
+        public DbSet<ProfilePicture> ProfilePictures { get; set; }
+        public DbSet<Roll> Rolls { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<webpages_Membership> webpages_Membership { get; set; }
         public DbSet<webpages_OAuthMembership> webpages_OAuthMembership { get; set; }

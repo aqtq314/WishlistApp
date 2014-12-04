@@ -1,25 +1,62 @@
-﻿@{
-    ViewBag.Title = "Wishlists";
-    var wishlists = Model;
+﻿@model WishlistApp.Models.UserInfoJsonModel
+@{
+    ViewBag.Title = string.Format("{0}'s Wishlists", Model.UserName);
 }
 
-<h2>@ViewBag.Title</h2>
-
-<div ng-controller="wishlistsController" ng-cloak>
-    <ul>
-        <li ng-repeat="wl in Wishlists">
-            <input type="text" ng-model="wl.Info.Title" ng-change="changeWishlist(wl)" />
-            <a href="" ng-click="toggleWishlistVisibility(wl)">{{wl.Info.IsPublic ? "Public" : "Private"}}</a>
-            <a href="" ng-click="removeWishlist(wl)">Remove</a>
-            <ul>
-                <li ng-repeat="wli in wl.WishlistItems">
-                    <input type="text" ng-model="wli.Content" ng-change="changeWishlistItem(wli)" />
-                    <a href="" ng-click="removeWishlistItem(wli, wl)">Remove</a>
-                </li>
-                <li><a href="" ng-click="addWishlistItem(wl)">Add Wishlist Item</a></li>
-            </ul>
-        </li>
-        <li><a href="" ng-click="addWishlist()">Add Wishlist</a></li>
-    </ul>
+<div ng-init="userId = @Model.ID; isSelf = @(Model.IsSelf ? "true" : "false")">
+    <div class="page-container" ng-controller="wishlist-view-controller" ng-cloak>
+        <div class="float-left profile-photo">
+            <a href="/User/?userId=@Model.ID">
+                <img src="/User/GetProfilePhoto?userId=@Model.ID" />
+            </a>
+        </div>
+        <div class="float-left page-content">
+            <h2 class="page-title">@Model.UserName's Wishlists</h2>
+            <div class="clear-both" ng-hide="Success">
+                <div class="small">Loading ...</div>
+            </div>
+            <div class="clear-both" ng-show="Success">
+                <div ng-show="isSelf">
+                    <h3 ng-hide="adder.controlVisible">
+                        <a href="" ng-click="adder.showControl()">Add new wishlist</a>
+                    </h3>
+                    <div ng-show="adder.controlVisible">
+                        <form ng-submit="adder.submit()">
+                            <input type="text" class="page-content wishlist-title" ng-model="adder.content.Title" />
+                            <div ng-repeat="wli in adder.content.WishlistItems">
+                                <input type="text" class="page-content wishlist-item" ng-model="wli.Content" />
+                            </div>
+                            <div class="float-left">
+                                <select class="float-left" ng-model="adder.visibility" ng-options="v.value as v.name for v in visibilities"></select>
+                                <a href="" ng-click="adder.add()">Add</a>
+                                <a href="" ng-click="adder.removeLast()">Remove Last</a>
+                            </div>
+                            <div class="float-right">
+                                <input type="submit" value="Add Wishlist" />
+                            </div>
+                            <div class="clear-both"></div>
+                        </form>
+                    </div>
+                </div>
+                <div ng-repeat="wl in Wishlists">
+                    <h2>{{wl.Title}}</h2>
+                    <div class="small with-bottom-border">
+                        <span ng-hide="isSelf">{{wl.VisibilityString}}</span>
+                        <a ng-show="isSelf" href="" ng-click="wl.editor.switchVisibility()">{{wl.VisibilityString}}</a>
+                        <span> | </span>
+                        <span>{{wl.Time}}</span>
+                        <div class="float-right" ng-show="isSelf">
+                            <a href="" ng-click="wl.deleter.delete()">Delete</a>
+                        </div>
+                    </div>
+                    <ul class="wishlist">
+                        <li ng-repeat="wli in wl.WishlistItems">
+                            <div>{{wli.Content}}</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 

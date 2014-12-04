@@ -12,7 +12,7 @@
           </Key>
           <Property Name="UserIdLower" Type="int" Nullable="false" />
           <Property Name="UserIdUpper" Type="int" Nullable="false" />
-          <Property Name="FriendshipSince" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="FriendshipSinceUtc" Type="datetime2" Precision="7" Nullable="false" />
         </EntityType>
         <EntityType Name="FriendshipRequest">
           <Key>
@@ -21,7 +21,35 @@
           </Key>
           <Property Name="SenderUserId" Type="int" Nullable="false" />
           <Property Name="ReceiverUserId" Type="int" Nullable="false" />
-          <Property Name="FriendshipRequestTime" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="FriendshipRequestTimeUtc" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Picture">
+          <Key>
+            <PropertyRef Name="PictureId" />
+          </Key>
+          <Property Name="PictureId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="Thumbnail128" Type="varbinary(max)" Nullable="false" />
+          <Property Name="Content" Type="varbinary(max)" Nullable="false" />
+          <Property Name="TimeUtc" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProfilePicture">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="PictureId" Type="int" Nullable="false" />
+          <Property Name="TimeUtc" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Roll">
+          <Key>
+            <PropertyRef Name="RollId" />
+          </Key>
+          <Property Name="RollId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="Content" Type="nvarchar" MaxLength="4000" Nullable="false" />
+          <Property Name="TimeUtc" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Visibility" Type="tinyint" Nullable="false" />
         </EntityType>
         <EntityType Name="UserProfile">
           <Key>
@@ -45,8 +73,6 @@
           <Property Name="PasswordSalt" Type="nvarchar" MaxLength="128" Nullable="false" />
           <Property Name="PasswordVerificationToken" Type="nvarchar" MaxLength="128" />
           <Property Name="PasswordVerificationTokenExpirationDate" Type="datetime" />
-          <Property Name="ProfilePicture32" Type="varbinary(max)" />
-          <Property Name="ProfilePicture128" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="webpages_OAuthMembership">
           <Key>
@@ -77,19 +103,20 @@
             <PropertyRef Name="WishlistId" />
           </Key>
           <Property Name="WishlistId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="WishlistTitle" Type="nvarchar" MaxLength="255" />
+          <Property Name="Title" Type="nvarchar" MaxLength="255" />
           <Property Name="UserId" Type="int" Nullable="false" />
-          <Property Name="IsPublic" Type="bit" Nullable="false" />
+          <Property Name="TimeUtc" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Visibility" Type="tinyint" Nullable="false" />
         </EntityType>
         <EntityType Name="WishlistItem">
           <Key>
             <PropertyRef Name="WishlistItemId" />
           </Key>
-          <Property Name="WishlistItemId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="WishlistItemContent" Type="nvarchar" MaxLength="255" />
+          <Property Name="WishlistItemId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="WishlistId" Type="int" Nullable="false" />
+          <Property Name="Content" Type="nvarchar" MaxLength="4000" Nullable="false" />
         </EntityType>
-        <Association Name="FK__Friendshi__Recei__4AB81AF0">
+        <Association Name="FK__Friendshi__Recei__68487DD7">
           <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="1" />
           <End Role="FriendshipRequest" Type="Self.FriendshipRequest" Multiplicity="*" />
           <ReferentialConstraint>
@@ -101,7 +128,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Friendshi__Sende__49C3F6B7">
+        <Association Name="FK__Friendshi__Sende__693CA210">
           <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="1" />
           <End Role="FriendshipRequest" Type="Self.FriendshipRequest" Multiplicity="*" />
           <ReferentialConstraint>
@@ -113,7 +140,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Friendshi__UserI__44FF419A">
+        <Association Name="FK__Friendshi__UserI__628FA481">
           <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="1" />
           <End Role="Friendship" Type="Self.Friendship" Multiplicity="*" />
           <ReferentialConstraint>
@@ -125,7 +152,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Friendshi__UserI__45F365D3">
+        <Association Name="FK__Friendshi__UserI__6383C8BA">
           <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="1" />
           <End Role="Friendship" Type="Self.Friendship" Multiplicity="*" />
           <ReferentialConstraint>
@@ -137,14 +164,62 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__webpages___UserI__4F7CD00D">
+        <Association Name="FK__Picture__UserId__778AC167">
           <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="1" />
-          <End Role="webpages_Membership" Type="Self.webpages_Membership" Multiplicity="0..1" />
+          <End Role="Picture" Type="Self.Picture" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="UserProfile">
               <PropertyRef Name="UserId" />
             </Principal>
-            <Dependent Role="webpages_Membership">
+            <Dependent Role="Picture">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProfilePi__Pictu__08B54D69">
+          <End Role="Picture" Type="Self.Picture" Multiplicity="1" />
+          <End Role="ProfilePicture" Type="Self.ProfilePicture" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Picture">
+              <PropertyRef Name="PictureId" />
+            </Principal>
+            <Dependent Role="ProfilePicture">
+              <PropertyRef Name="PictureId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProfilePi__UserI__09A971A2">
+          <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="1" />
+          <End Role="ProfilePicture" Type="Self.ProfilePicture" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="UserProfile">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="ProfilePicture">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Roll__UserId__6EF57B66">
+          <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="1" />
+          <End Role="Roll" Type="Self.Roll" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UserProfile">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="Roll">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Roll__UserId__6FE99F9F">
+          <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="1" />
+          <End Role="Roll" Type="Self.Roll" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UserProfile">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="Roll">
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
@@ -158,6 +233,30 @@
             </Principal>
             <Dependent Role="webpages_OAuthMembership">
               <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__webpages___UserI__74AE54BC">
+          <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="1" />
+          <End Role="webpages_Membership" Type="Self.webpages_Membership" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="UserProfile">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="webpages_Membership">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__WishlistI__Wishl__0D7A0286">
+          <End Role="Wishlist" Type="Self.Wishlist" Multiplicity="1" />
+          <End Role="WishlistItem" Type="Self.WishlistItem" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Wishlist">
+              <PropertyRef Name="WishlistId" />
+            </Principal>
+            <Dependent Role="WishlistItem">
+              <PropertyRef Name="WishlistId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -197,21 +296,12 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="WishlistId">
-          <End Role="Wishlist" Type="Self.Wishlist" Multiplicity="1" />
-          <End Role="WishlistItem" Type="Self.WishlistItem" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Wishlist">
-              <PropertyRef Name="WishlistId" />
-            </Principal>
-            <Dependent Role="WishlistItem">
-              <PropertyRef Name="WishlistId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityContainer Name="ModelStoreContainer">
           <EntitySet Name="Friendship" EntityType="Self.Friendship" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="FriendshipRequest" EntityType="Self.FriendshipRequest" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Picture" EntityType="Self.Picture" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProfilePicture" EntityType="Self.ProfilePicture" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Roll" EntityType="Self.Roll" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserProfile" EntityType="Self.UserProfile" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="webpages_Membership" EntityType="Self.webpages_Membership" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="webpages_OAuthMembership" EntityType="Self.webpages_OAuthMembership" Schema="dbo" store:Type="Tables" />
@@ -219,29 +309,53 @@
           <EntitySet Name="webpages_UsersInRoles" EntityType="Self.webpages_UsersInRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Wishlist" EntityType="Self.Wishlist" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WishlistItem" EntityType="Self.WishlistItem" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__Friendshi__Recei__4AB81AF0" Association="Self.FK__Friendshi__Recei__4AB81AF0">
+          <AssociationSet Name="FK__Friendshi__Recei__68487DD7" Association="Self.FK__Friendshi__Recei__68487DD7">
             <End Role="UserProfile" EntitySet="UserProfile" />
             <End Role="FriendshipRequest" EntitySet="FriendshipRequest" />
           </AssociationSet>
-          <AssociationSet Name="FK__Friendshi__Sende__49C3F6B7" Association="Self.FK__Friendshi__Sende__49C3F6B7">
+          <AssociationSet Name="FK__Friendshi__Sende__693CA210" Association="Self.FK__Friendshi__Sende__693CA210">
             <End Role="UserProfile" EntitySet="UserProfile" />
             <End Role="FriendshipRequest" EntitySet="FriendshipRequest" />
           </AssociationSet>
-          <AssociationSet Name="FK__Friendshi__UserI__44FF419A" Association="Self.FK__Friendshi__UserI__44FF419A">
+          <AssociationSet Name="FK__Friendshi__UserI__628FA481" Association="Self.FK__Friendshi__UserI__628FA481">
             <End Role="UserProfile" EntitySet="UserProfile" />
             <End Role="Friendship" EntitySet="Friendship" />
           </AssociationSet>
-          <AssociationSet Name="FK__Friendshi__UserI__45F365D3" Association="Self.FK__Friendshi__UserI__45F365D3">
+          <AssociationSet Name="FK__Friendshi__UserI__6383C8BA" Association="Self.FK__Friendshi__UserI__6383C8BA">
             <End Role="UserProfile" EntitySet="UserProfile" />
             <End Role="Friendship" EntitySet="Friendship" />
           </AssociationSet>
-          <AssociationSet Name="FK__webpages___UserI__4F7CD00D" Association="Self.FK__webpages___UserI__4F7CD00D">
+          <AssociationSet Name="FK__Picture__UserId__778AC167" Association="Self.FK__Picture__UserId__778AC167">
             <End Role="UserProfile" EntitySet="UserProfile" />
-            <End Role="webpages_Membership" EntitySet="webpages_Membership" />
+            <End Role="Picture" EntitySet="Picture" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProfilePi__Pictu__08B54D69" Association="Self.FK__ProfilePi__Pictu__08B54D69">
+            <End Role="Picture" EntitySet="Picture" />
+            <End Role="ProfilePicture" EntitySet="ProfilePicture" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProfilePi__UserI__09A971A2" Association="Self.FK__ProfilePi__UserI__09A971A2">
+            <End Role="UserProfile" EntitySet="UserProfile" />
+            <End Role="ProfilePicture" EntitySet="ProfilePicture" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Roll__UserId__6EF57B66" Association="Self.FK__Roll__UserId__6EF57B66">
+            <End Role="UserProfile" EntitySet="UserProfile" />
+            <End Role="Roll" EntitySet="Roll" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Roll__UserId__6FE99F9F" Association="Self.FK__Roll__UserId__6FE99F9F">
+            <End Role="UserProfile" EntitySet="UserProfile" />
+            <End Role="Roll" EntitySet="Roll" />
           </AssociationSet>
           <AssociationSet Name="FK__webpages___UserI__5070F446" Association="Self.FK__webpages___UserI__5070F446">
             <End Role="UserProfile" EntitySet="UserProfile" />
             <End Role="webpages_OAuthMembership" EntitySet="webpages_OAuthMembership" />
+          </AssociationSet>
+          <AssociationSet Name="FK__webpages___UserI__74AE54BC" Association="Self.FK__webpages___UserI__74AE54BC">
+            <End Role="UserProfile" EntitySet="UserProfile" />
+            <End Role="webpages_Membership" EntitySet="webpages_Membership" />
+          </AssociationSet>
+          <AssociationSet Name="FK__WishlistI__Wishl__0D7A0286" Association="Self.FK__WishlistI__Wishl__0D7A0286">
+            <End Role="Wishlist" EntitySet="Wishlist" />
+            <End Role="WishlistItem" EntitySet="WishlistItem" />
           </AssociationSet>
           <AssociationSet Name="fk_RoleId" Association="Self.fk_RoleId">
             <End Role="webpages_Roles" EntitySet="webpages_Roles" />
@@ -255,10 +369,6 @@
             <End Role="UserProfile" EntitySet="UserProfile" />
             <End Role="Wishlist" EntitySet="Wishlist" />
           </AssociationSet>
-          <AssociationSet Name="WishlistId" Association="Self.WishlistId">
-            <End Role="Wishlist" EntitySet="Wishlist" />
-            <End Role="WishlistItem" EntitySet="WishlistItem" />
-          </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
@@ -267,35 +377,58 @@
         <EntityContainer Name="WishlistContext" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Friendships" EntityType="Model.Friendship" />
           <EntitySet Name="FriendshipRequests" EntityType="Model.FriendshipRequest" />
+          <EntitySet Name="Pictures" EntityType="Model.Picture" />
+          <EntitySet Name="ProfilePictures" EntityType="Model.ProfilePicture" />
+          <EntitySet Name="Rolls" EntityType="Model.Roll" />
           <EntitySet Name="UserProfiles" EntityType="Model.UserProfile" />
           <EntitySet Name="webpages_Membership" EntityType="Model.webpages_Membership" />
           <EntitySet Name="webpages_OAuthMembership" EntityType="Model.webpages_OAuthMembership" />
           <EntitySet Name="webpages_Roles" EntityType="Model.webpages_Roles" />
           <EntitySet Name="Wishlists" EntityType="Model.Wishlist" />
           <EntitySet Name="WishlistItems" EntityType="Model.WishlistItem" />
-          <AssociationSet Name="FK__Friendshi__UserI__44FF419A" Association="Model.FK__Friendshi__UserI__44FF419A">
+          <AssociationSet Name="FK__Friendshi__UserI__628FA481" Association="Model.FK__Friendshi__UserI__628FA481">
             <End Role="UserProfile" EntitySet="UserProfiles" />
             <End Role="Friendship" EntitySet="Friendships" />
           </AssociationSet>
-          <AssociationSet Name="FK__Friendshi__UserI__45F365D3" Association="Model.FK__Friendshi__UserI__45F365D3">
+          <AssociationSet Name="FK__Friendshi__UserI__6383C8BA" Association="Model.FK__Friendshi__UserI__6383C8BA">
             <End Role="UserProfile" EntitySet="UserProfiles" />
             <End Role="Friendship" EntitySet="Friendships" />
           </AssociationSet>
-          <AssociationSet Name="FK__Friendshi__Recei__4AB81AF0" Association="Model.FK__Friendshi__Recei__4AB81AF0">
+          <AssociationSet Name="FK__Friendshi__Recei__68487DD7" Association="Model.FK__Friendshi__Recei__68487DD7">
             <End Role="UserProfile" EntitySet="UserProfiles" />
             <End Role="FriendshipRequest" EntitySet="FriendshipRequests" />
           </AssociationSet>
-          <AssociationSet Name="FK__Friendshi__Sende__49C3F6B7" Association="Model.FK__Friendshi__Sende__49C3F6B7">
+          <AssociationSet Name="FK__Friendshi__Sende__693CA210" Association="Model.FK__Friendshi__Sende__693CA210">
             <End Role="UserProfile" EntitySet="UserProfiles" />
             <End Role="FriendshipRequest" EntitySet="FriendshipRequests" />
           </AssociationSet>
-          <AssociationSet Name="FK__webpages___UserI__4F7CD00D" Association="Model.FK__webpages___UserI__4F7CD00D">
+          <AssociationSet Name="FK__Picture__UserId__778AC167" Association="Model.FK__Picture__UserId__778AC167">
             <End Role="UserProfile" EntitySet="UserProfiles" />
-            <End Role="webpages_Membership" EntitySet="webpages_Membership" />
+            <End Role="Picture" EntitySet="Pictures" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProfilePi__Pictu__08B54D69" Association="Model.FK__ProfilePi__Pictu__08B54D69">
+            <End Role="Picture" EntitySet="Pictures" />
+            <End Role="ProfilePicture" EntitySet="ProfilePictures" />
+          </AssociationSet>
+          <AssociationSet Name="FK__ProfilePi__UserI__09A971A2" Association="Model.FK__ProfilePi__UserI__09A971A2">
+            <End Role="UserProfile" EntitySet="UserProfiles" />
+            <End Role="ProfilePicture" EntitySet="ProfilePictures" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Roll__UserId__6EF57B66" Association="Model.FK__Roll__UserId__6EF57B66">
+            <End Role="UserProfile" EntitySet="UserProfiles" />
+            <End Role="Roll" EntitySet="Rolls" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Roll__UserId__6FE99F9F" Association="Model.FK__Roll__UserId__6FE99F9F">
+            <End Role="UserProfile" EntitySet="UserProfiles" />
+            <End Role="Roll" EntitySet="Rolls" />
           </AssociationSet>
           <AssociationSet Name="FK__webpages___UserI__5070F446" Association="Model.FK__webpages___UserI__5070F446">
             <End Role="UserProfile" EntitySet="UserProfiles" />
             <End Role="webpages_OAuthMembership" EntitySet="webpages_OAuthMembership" />
+          </AssociationSet>
+          <AssociationSet Name="FK__webpages___UserI__74AE54BC" Association="Model.FK__webpages___UserI__74AE54BC">
+            <End Role="UserProfile" EntitySet="UserProfiles" />
+            <End Role="webpages_Membership" EntitySet="webpages_Membership" />
           </AssociationSet>
           <AssociationSet Name="UserId" Association="Model.UserId">
             <End Role="UserProfile" EntitySet="UserProfiles" />
@@ -317,9 +450,9 @@
           </Key>
           <Property Name="UserIdLower" Type="Int32" Nullable="false" />
           <Property Name="UserIdUpper" Type="Int32" Nullable="false" />
-          <Property Name="FriendshipSince" Type="DateTime" Nullable="false" Precision="7" />
-          <NavigationProperty Name="UserProfile" Relationship="Model.FK__Friendshi__UserI__44FF419A" FromRole="Friendship" ToRole="UserProfile" />
-          <NavigationProperty Name="UserProfile1" Relationship="Model.FK__Friendshi__UserI__45F365D3" FromRole="Friendship" ToRole="UserProfile" />
+          <Property Name="FriendshipSinceUtc" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="UserProfile" Relationship="Model.FK__Friendshi__UserI__628FA481" FromRole="Friendship" ToRole="UserProfile" />
+          <NavigationProperty Name="UserProfile1" Relationship="Model.FK__Friendshi__UserI__6383C8BA" FromRole="Friendship" ToRole="UserProfile" />
         </EntityType>
         <EntityType Name="FriendshipRequest">
           <Key>
@@ -328,9 +461,43 @@
           </Key>
           <Property Name="SenderUserId" Type="Int32" Nullable="false" />
           <Property Name="ReceiverUserId" Type="Int32" Nullable="false" />
-          <Property Name="FriendshipRequestTime" Type="DateTime" Nullable="false" Precision="7" />
-          <NavigationProperty Name="UserProfile" Relationship="Model.FK__Friendshi__Recei__4AB81AF0" FromRole="FriendshipRequest" ToRole="UserProfile" />
-          <NavigationProperty Name="UserProfile1" Relationship="Model.FK__Friendshi__Sende__49C3F6B7" FromRole="FriendshipRequest" ToRole="UserProfile" />
+          <Property Name="FriendshipRequestTimeUtc" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="UserProfile" Relationship="Model.FK__Friendshi__Recei__68487DD7" FromRole="FriendshipRequest" ToRole="UserProfile" />
+          <NavigationProperty Name="UserProfile1" Relationship="Model.FK__Friendshi__Sende__693CA210" FromRole="FriendshipRequest" ToRole="UserProfile" />
+        </EntityType>
+        <EntityType Name="Picture">
+          <Key>
+            <PropertyRef Name="PictureId" />
+          </Key>
+          <Property Name="PictureId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="Thumbnail128" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
+          <Property Name="Content" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
+          <Property Name="TimeUtc" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="UserProfile" Relationship="Model.FK__Picture__UserId__778AC167" FromRole="Picture" ToRole="UserProfile" />
+          <NavigationProperty Name="ProfilePictures" Relationship="Model.FK__ProfilePi__Pictu__08B54D69" FromRole="Picture" ToRole="ProfilePicture" />
+        </EntityType>
+        <EntityType Name="ProfilePicture">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="PictureId" Type="Int32" Nullable="false" />
+          <Property Name="TimeUtc" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="Picture" Relationship="Model.FK__ProfilePi__Pictu__08B54D69" FromRole="ProfilePicture" ToRole="Picture" />
+          <NavigationProperty Name="UserProfile" Relationship="Model.FK__ProfilePi__UserI__09A971A2" FromRole="ProfilePicture" ToRole="UserProfile" />
+        </EntityType>
+        <EntityType Name="Roll">
+          <Key>
+            <PropertyRef Name="RollId" />
+          </Key>
+          <Property Name="RollId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="Content" Type="String" Nullable="false" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="TimeUtc" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Visibility" Type="Byte" Nullable="false" />
+          <NavigationProperty Name="UserProfile" Relationship="Model.FK__Roll__UserId__6EF57B66" FromRole="Roll" ToRole="UserProfile" />
+          <NavigationProperty Name="UserProfile1" Relationship="Model.FK__Roll__UserId__6FE99F9F" FromRole="Roll" ToRole="UserProfile" />
         </EntityType>
         <EntityType Name="UserProfile">
           <Key>
@@ -338,12 +505,16 @@
           </Key>
           <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="UserName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Friendships" Relationship="Model.FK__Friendshi__UserI__44FF419A" FromRole="UserProfile" ToRole="Friendship" />
-          <NavigationProperty Name="Friendships1" Relationship="Model.FK__Friendshi__UserI__45F365D3" FromRole="UserProfile" ToRole="Friendship" />
-          <NavigationProperty Name="FriendshipRequests" Relationship="Model.FK__Friendshi__Recei__4AB81AF0" FromRole="UserProfile" ToRole="FriendshipRequest" />
-          <NavigationProperty Name="FriendshipRequests1" Relationship="Model.FK__Friendshi__Sende__49C3F6B7" FromRole="UserProfile" ToRole="FriendshipRequest" />
-          <NavigationProperty Name="webpages_Membership" Relationship="Model.FK__webpages___UserI__4F7CD00D" FromRole="UserProfile" ToRole="webpages_Membership" />
+          <NavigationProperty Name="Friendships" Relationship="Model.FK__Friendshi__UserI__628FA481" FromRole="UserProfile" ToRole="Friendship" />
+          <NavigationProperty Name="Friendships1" Relationship="Model.FK__Friendshi__UserI__6383C8BA" FromRole="UserProfile" ToRole="Friendship" />
+          <NavigationProperty Name="FriendshipRequests" Relationship="Model.FK__Friendshi__Recei__68487DD7" FromRole="UserProfile" ToRole="FriendshipRequest" />
+          <NavigationProperty Name="FriendshipRequests1" Relationship="Model.FK__Friendshi__Sende__693CA210" FromRole="UserProfile" ToRole="FriendshipRequest" />
+          <NavigationProperty Name="Pictures" Relationship="Model.FK__Picture__UserId__778AC167" FromRole="UserProfile" ToRole="Picture" />
+          <NavigationProperty Name="ProfilePicture" Relationship="Model.FK__ProfilePi__UserI__09A971A2" FromRole="UserProfile" ToRole="ProfilePicture" />
+          <NavigationProperty Name="Rolls" Relationship="Model.FK__Roll__UserId__6EF57B66" FromRole="UserProfile" ToRole="Roll" />
+          <NavigationProperty Name="Rolls1" Relationship="Model.FK__Roll__UserId__6FE99F9F" FromRole="UserProfile" ToRole="Roll" />
           <NavigationProperty Name="webpages_OAuthMembership" Relationship="Model.FK__webpages___UserI__5070F446" FromRole="UserProfile" ToRole="webpages_OAuthMembership" />
+          <NavigationProperty Name="webpages_Membership" Relationship="Model.FK__webpages___UserI__74AE54BC" FromRole="UserProfile" ToRole="webpages_Membership" />
           <NavigationProperty Name="Wishlists" Relationship="Model.UserId" FromRole="UserProfile" ToRole="Wishlist" />
           <NavigationProperty Name="webpages_Roles" Relationship="Model.webpages_UsersInRoles" FromRole="UserProfile" ToRole="webpages_Roles" />
         </EntityType>
@@ -362,9 +533,7 @@
           <Property Name="PasswordSalt" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="PasswordVerificationToken" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="PasswordVerificationTokenExpirationDate" Type="DateTime" Precision="3" />
-          <Property Name="ProfilePicture32" Type="Binary" MaxLength="Max" FixedLength="false" />
-          <Property Name="ProfilePicture128" Type="Binary" MaxLength="Max" FixedLength="false" />
-          <NavigationProperty Name="UserProfile" Relationship="Model.FK__webpages___UserI__4F7CD00D" FromRole="webpages_Membership" ToRole="UserProfile" />
+          <NavigationProperty Name="UserProfile" Relationship="Model.FK__webpages___UserI__74AE54BC" FromRole="webpages_Membership" ToRole="UserProfile" />
         </EntityType>
         <EntityType Name="webpages_OAuthMembership">
           <Key>
@@ -389,22 +558,23 @@
             <PropertyRef Name="WishlistId" />
           </Key>
           <Property Name="WishlistId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="WishlistTitle" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="UserId" Type="Int32" Nullable="false" />
-          <Property Name="IsPublic" Type="Boolean" Nullable="false" />
+          <Property Name="TimeUtc" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Visibility" Type="Byte" Nullable="false" />
           <NavigationProperty Name="UserProfile" Relationship="Model.UserId" FromRole="Wishlist" ToRole="UserProfile" />
           <NavigationProperty Name="WishlistItems" Relationship="Model.WishlistId" FromRole="Wishlist" ToRole="WishlistItem" />
+          <Property Name="Title" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="WishlistItem">
           <Key>
             <PropertyRef Name="WishlistItemId" />
           </Key>
           <Property Name="WishlistItemId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="WishlistItemContent" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
           <Property Name="WishlistId" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Wishlist" Relationship="Model.WishlistId" FromRole="WishlistItem" ToRole="Wishlist" />
+          <Property Name="Content" Type="String" Nullable="false" MaxLength="4000" FixedLength="false" Unicode="true" />
         </EntityType>
-        <Association Name="FK__Friendshi__UserI__44FF419A">
+        <Association Name="FK__Friendshi__UserI__628FA481">
           <End Type="Model.UserProfile" Role="UserProfile" Multiplicity="1" />
           <End Type="Model.Friendship" Role="Friendship" Multiplicity="*" />
           <ReferentialConstraint>
@@ -416,7 +586,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Friendshi__UserI__45F365D3">
+        <Association Name="FK__Friendshi__UserI__6383C8BA">
           <End Type="Model.UserProfile" Role="UserProfile" Multiplicity="1" />
           <End Type="Model.Friendship" Role="Friendship" Multiplicity="*" />
           <ReferentialConstraint>
@@ -428,7 +598,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Friendshi__Recei__4AB81AF0">
+        <Association Name="FK__Friendshi__Recei__68487DD7">
           <End Type="Model.UserProfile" Role="UserProfile" Multiplicity="1" />
           <End Type="Model.FriendshipRequest" Role="FriendshipRequest" Multiplicity="*" />
           <ReferentialConstraint>
@@ -440,7 +610,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Friendshi__Sende__49C3F6B7">
+        <Association Name="FK__Friendshi__Sende__693CA210">
           <End Type="Model.UserProfile" Role="UserProfile" Multiplicity="1" />
           <End Type="Model.FriendshipRequest" Role="FriendshipRequest" Multiplicity="*" />
           <ReferentialConstraint>
@@ -452,14 +622,62 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__webpages___UserI__4F7CD00D">
+        <Association Name="FK__Picture__UserId__778AC167">
           <End Type="Model.UserProfile" Role="UserProfile" Multiplicity="1" />
-          <End Type="Model.webpages_Membership" Role="webpages_Membership" Multiplicity="0..1" />
+          <End Type="Model.Picture" Role="Picture" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="UserProfile">
               <PropertyRef Name="UserId" />
             </Principal>
-            <Dependent Role="webpages_Membership">
+            <Dependent Role="Picture">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProfilePi__Pictu__08B54D69">
+          <End Type="Model.Picture" Role="Picture" Multiplicity="1" />
+          <End Type="Model.ProfilePicture" Role="ProfilePicture" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Picture">
+              <PropertyRef Name="PictureId" />
+            </Principal>
+            <Dependent Role="ProfilePicture">
+              <PropertyRef Name="PictureId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__ProfilePi__UserI__09A971A2">
+          <End Type="Model.UserProfile" Role="UserProfile" Multiplicity="1" />
+          <End Type="Model.ProfilePicture" Role="ProfilePicture" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="UserProfile">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="ProfilePicture">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Roll__UserId__6EF57B66">
+          <End Type="Model.UserProfile" Role="UserProfile" Multiplicity="1" />
+          <End Type="Model.Roll" Role="Roll" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UserProfile">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="Roll">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Roll__UserId__6FE99F9F">
+          <End Type="Model.UserProfile" Role="UserProfile" Multiplicity="1" />
+          <End Type="Model.Roll" Role="Roll" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UserProfile">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="Roll">
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
@@ -472,6 +690,18 @@
               <PropertyRef Name="UserId" />
             </Principal>
             <Dependent Role="webpages_OAuthMembership">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__webpages___UserI__74AE54BC">
+          <End Type="Model.UserProfile" Role="UserProfile" Multiplicity="1" />
+          <End Type="Model.webpages_Membership" Role="webpages_Membership" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="UserProfile">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="webpages_Membership">
               <PropertyRef Name="UserId" />
             </Dependent>
           </ReferentialConstraint>
@@ -513,7 +743,7 @@
           <EntitySetMapping Name="Friendships">
             <EntityTypeMapping TypeName="Model.Friendship">
               <MappingFragment StoreEntitySet="Friendship">
-                <ScalarProperty Name="FriendshipSince" ColumnName="FriendshipSince" />
+                <ScalarProperty Name="FriendshipSinceUtc" ColumnName="FriendshipSinceUtc" />
                 <ScalarProperty Name="UserIdUpper" ColumnName="UserIdUpper" />
                 <ScalarProperty Name="UserIdLower" ColumnName="UserIdLower" />
               </MappingFragment>
@@ -522,9 +752,40 @@
           <EntitySetMapping Name="FriendshipRequests">
             <EntityTypeMapping TypeName="Model.FriendshipRequest">
               <MappingFragment StoreEntitySet="FriendshipRequest">
-                <ScalarProperty Name="FriendshipRequestTime" ColumnName="FriendshipRequestTime" />
+                <ScalarProperty Name="FriendshipRequestTimeUtc" ColumnName="FriendshipRequestTimeUtc" />
                 <ScalarProperty Name="ReceiverUserId" ColumnName="ReceiverUserId" />
                 <ScalarProperty Name="SenderUserId" ColumnName="SenderUserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Pictures">
+            <EntityTypeMapping TypeName="Model.Picture">
+              <MappingFragment StoreEntitySet="Picture">
+                <ScalarProperty Name="TimeUtc" ColumnName="TimeUtc" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="Thumbnail128" ColumnName="Thumbnail128" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="PictureId" ColumnName="PictureId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProfilePictures">
+            <EntityTypeMapping TypeName="Model.ProfilePicture">
+              <MappingFragment StoreEntitySet="ProfilePicture">
+                <ScalarProperty Name="TimeUtc" ColumnName="TimeUtc" />
+                <ScalarProperty Name="PictureId" ColumnName="PictureId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Rolls">
+            <EntityTypeMapping TypeName="Model.Roll">
+              <MappingFragment StoreEntitySet="Roll">
+                <ScalarProperty Name="Visibility" ColumnName="Visibility" />
+                <ScalarProperty Name="TimeUtc" ColumnName="TimeUtc" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="RollId" ColumnName="RollId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -539,8 +800,6 @@
           <EntitySetMapping Name="webpages_Membership">
             <EntityTypeMapping TypeName="Model.webpages_Membership">
               <MappingFragment StoreEntitySet="webpages_Membership">
-                <ScalarProperty Name="ProfilePicture128" ColumnName="ProfilePicture128" />
-                <ScalarProperty Name="ProfilePicture32" ColumnName="ProfilePicture32" />
                 <ScalarProperty Name="PasswordVerificationTokenExpirationDate" ColumnName="PasswordVerificationTokenExpirationDate" />
                 <ScalarProperty Name="PasswordVerificationToken" ColumnName="PasswordVerificationToken" />
                 <ScalarProperty Name="PasswordSalt" ColumnName="PasswordSalt" />
@@ -575,9 +834,10 @@
           <EntitySetMapping Name="Wishlists">
             <EntityTypeMapping TypeName="Model.Wishlist">
               <MappingFragment StoreEntitySet="Wishlist">
-                <ScalarProperty Name="IsPublic" ColumnName="IsPublic" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Visibility" ColumnName="Visibility" />
+                <ScalarProperty Name="TimeUtc" ColumnName="TimeUtc" />
                 <ScalarProperty Name="UserId" ColumnName="UserId" />
-                <ScalarProperty Name="WishlistTitle" ColumnName="WishlistTitle" />
                 <ScalarProperty Name="WishlistId" ColumnName="WishlistId" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -585,8 +845,8 @@
           <EntitySetMapping Name="WishlistItems">
             <EntityTypeMapping TypeName="Model.WishlistItem">
               <MappingFragment StoreEntitySet="WishlistItem">
+                <ScalarProperty Name="Content" ColumnName="Content" />
                 <ScalarProperty Name="WishlistId" ColumnName="WishlistId" />
-                <ScalarProperty Name="WishlistItemContent" ColumnName="WishlistItemContent" />
                 <ScalarProperty Name="WishlistItemId" ColumnName="WishlistItemId" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -614,7 +874,7 @@
       <DesignerInfoPropertySet>
         <DesignerProperty Name="ValidateOnBuild" Value="true" />
         <DesignerProperty Name="EnablePluralization" Value="true" />
-        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
         <DesignerProperty Name="UseLegacyProvider" Value="true" />
         <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
       </DesignerInfoPropertySet>

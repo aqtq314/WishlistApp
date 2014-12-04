@@ -16,7 +16,7 @@ namespace WishlistApp.Models
     {
         public int SenderUserId { get; set; }
         public int ReceiverUserId { get; set; }
-        public System.DateTime FriendshipRequestTime { get; set; }
+        public System.DateTime FriendshipRequestTimeUtc { get; set; }
     
         public virtual UserProfile UserProfile { get; set; }
         public virtual UserProfile UserProfile1 { get; set; }

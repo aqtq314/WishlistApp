@@ -1,0 +1,52 @@
+﻿@model WishlistApp.Models.UserInfoJsonModel
+@{
+    ViewBag.Title = Model.UserName + "'s User Profile";
+}
+
+<div ng-init="userId = @Model.ID; isSelf = @(Model.IsSelf ? "true" : "false")">
+    <div class="page-container" ng-controller="user-view-controller">
+        <div class="float-left profile-photo">
+            <img src="/User/GetProfilePhoto?userId=@Model.ID" />
+        </div>
+        <div class="float-left page-content">
+            <h2 class="page-title">@Model.UserName's User Profile</h2>
+            <div ng-hide="Info.Success">
+                <div class="small">Loading ...</div>
+            </div>
+            <div ng-show="Info.Success">
+                <div class="small with-bottom-border">Joined {{Info.CreationDate}}</div>
+                <p>
+                    @Model.UserName has {{Info.FriendshipCount}} friends.
+                    <span ng-show="Friendship.Status == 0">
+                        <a href="" ng-click="befriend(true)">Add friend</a>
+                    </span>
+                    <span ng-show="Friendship.Status == 1">
+                        Friend request Sent.
+                        <a href="" ng-click="befriend(false)">Take back</a>
+                    </span>
+                    <span ng-show="Friendship.Status == 2">
+                        <a href="" ng-click="befriend(true)">Accept friend request.</a>
+                        <a href="" ng-click="befriend(false)">Decline</a>
+                    </span>
+                    <span ng-show="Friendship.Status == 3">
+                        <a href="" ng-click="befriend(false)">Unfriend</a>
+                    </span>
+                    <span ng-show="Friendship.Status == 4">
+                    </span>
+                </p>
+                <p>
+                    @Model.UserName has {{Info.PictureCount}} pictures.
+                </p>
+                <p>
+                    @Model.UserName has {{Info.RollCount}} rolls.
+                    <a href="/Roll/?userId=@Model.ID">View rolls</a>
+                </p>
+                <p>
+                    @Model.UserName has {{Info.WishlistCount}} wishlists.
+                    <a href="/Wishlist/?userId=@Model.ID">View wishlists</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+

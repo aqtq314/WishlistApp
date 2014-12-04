@@ -39,6 +39,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.3.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -197,12 +200,15 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\FriendshipController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\RollController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\WishlistController.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
+    <Compile Include="Models\EditModel.cs" />
     <Compile Include="Models\Friendship.cs">
       <DependentUpon>WishlistEntities.tt</DependentUpon>
     </Compile>
@@ -210,6 +216,15 @@
       <DependentUpon>WishlistEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\HomeModel.cs" />
+    <Compile Include="Models\Picture.cs">
+      <DependentUpon>WishlistEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ProfilePicture.cs">
+      <DependentUpon>WishlistEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Roll.cs">
+      <DependentUpon>WishlistEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\UserProfile.cs">
       <DependentUpon>WishlistEntities.tt</DependentUpon>
     </Compile>
@@ -243,8 +258,16 @@
     <Compile Include="Models\WishlistItem.cs">
       <DependentUpon>WishlistEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\WishlistModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\FSharpOption.cs" />
+    <Compile Include="Util\ControllerActionHandler.cs" />
+    <Compile Include="Util\Context.cs" />
+    <Compile Include="Util\DbHelper.cs" />
+    <Compile Include="Util\Enumerable.cs" />
+    <Compile Include="Util\Enums.cs" />
+    <Compile Include="Util\EqualityComparer.cs" />
+    <Compile Include="Util\GenericTypeExtension.cs" />
+    <Compile Include="Util\Validation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Fonts.css" />
@@ -304,6 +327,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="Schema.sql" />
     <Content Include="Scripts\angular-animate.js" />
     <Content Include="Scripts\angular-animate.min.js" />
     <Content Include="Scripts\angular-aria.js" />
@@ -1108,6 +1132,7 @@
     <Content Include="Scripts\knockout-2.2.0.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\!controllers.js" />
+    <Content Include="Images\GenericProfilePicture.png" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1151,8 +1176,10 @@
     <Content Include="Views\Web.config" />
     <Content Include="Scripts\version.json" />
     <Content Include="Views\Wishlist\Index.cshtml" />
-    <Content Include="Views\Wishlist\ViewUser.cshtml" />
     <Content Include="Views\Account\_ChangePhotoPartial.cshtml" />
+    <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\Roll\Index.cshtml" />
+    <Content Include="Views\Friendship\Search.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

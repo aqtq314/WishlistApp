@@ -16,7 +16,7 @@ namespace WishlistApp.Models
     {
         public int UserIdLower { get; set; }
         public int UserIdUpper { get; set; }
-        public System.DateTime FriendshipSince { get; set; }
+        public System.DateTime FriendshipSinceUtc { get; set; }
     
         public virtual UserProfile UserProfile { get; set; }
         public virtual UserProfile UserProfile1 { get; set; }

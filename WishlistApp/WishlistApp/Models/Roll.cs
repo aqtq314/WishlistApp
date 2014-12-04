@@ -12,20 +12,15 @@ namespace WishlistApp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Wishlist
+    public partial class Roll
     {
-        public Wishlist()
-        {
-            this.WishlistItems = new HashSet<WishlistItem>();
-        }
-    
-        public int WishlistId { get; set; }
+        public int RollId { get; set; }
         public int UserId { get; set; }
+        public string Content { get; set; }
         public System.DateTime TimeUtc { get; set; }
         public byte Visibility { get; set; }
-        public string Title { get; set; }
     
         public virtual UserProfile UserProfile { get; set; }
-        public virtual ICollection<WishlistItem> WishlistItems { get; set; }
+        public virtual UserProfile UserProfile1 { get; set; }
     }
 }

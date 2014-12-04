@@ -14,6 +14,7 @@ namespace WishlistApp.Models
     {
         public int ID { get; set; }
         public string UserName { get; set; }
+        public bool IsSelf { get; set; }
     }
 
     public class UserInfoCollectionJsonModel

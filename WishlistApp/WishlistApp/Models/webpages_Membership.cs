@@ -25,8 +25,6 @@ namespace WishlistApp.Models
         public string PasswordSalt { get; set; }
         public string PasswordVerificationToken { get; set; }
         public Nullable<System.DateTime> PasswordVerificationTokenExpirationDate { get; set; }
-        public byte[] ProfilePicture32 { get; set; }
-        public byte[] ProfilePicture128 { get; set; }
     
         public virtual UserProfile UserProfile { get; set; }
     }

@@ -15,8 +15,8 @@ namespace WishlistApp.Models
     public partial class WishlistItem
     {
         public int WishlistItemId { get; set; }
-        public string WishlistItemContent { get; set; }
         public int WishlistId { get; set; }
+        public string Content { get; set; }
     
         public virtual Wishlist Wishlist { get; set; }
     }

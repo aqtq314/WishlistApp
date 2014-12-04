@@ -1,0 +1,26 @@
+﻿@{
+    ViewBag.Title = "Search";
+}
+
+<div ng-controller="friendship-search-controller">
+    <form ng-submit="searchUser()">
+        <input type="text" ng-model="UserNameModel" />
+        <input type="submit" value="Search" />
+    </form>
+    <div ng-show="Success">
+        <div class="small">Your query "{{Query}}" yielded {{Users.length}} results.</div>
+        <div class="search-result" ng-repeat="user in Users">
+            <a ng-href="/User/?userId={{user.UserId}}" href="" target="_blank">
+                <div class="search-result-profile-picture">
+                    <img class="profile-photo-small" ng-src="/User/GetProfilePhoto?userId={{user.UserId}}" />
+                </div>
+                <div class="search-result-content">
+                    <h2>{{user.UserName}}</h2>
+                    <div>Joined {{user.CreationDate}}</div>
+                </div>
+                <div class="clear-both"></div>
+            </a>
+        </div>
+        <div class="clear-both"></div>
+    </div>
+</div>

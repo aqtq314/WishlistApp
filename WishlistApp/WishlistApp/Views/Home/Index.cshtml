@@ -8,14 +8,7 @@
                 <h1>@ViewBag.Title.</h1>
                 <h2>They see me rolling, they wishing.</h2>
             </hgroup>
-            <h3>@Html.ActionLink("Manage my Wishlists", "Index", "Wishlist")</h3>
+            <h3>@Html.ActionLink("Go to my user profile", "Index", "User")</h3>
         </div>
     </section>
 }
-
-<div ng-controller="listUsersController">
-    <h3>Or view wishlists listed as public:</h3>
-    <div ng-repeat="u in users">
-        <a href="" ng-click="viewUser(u.ID)">{{u.UserName}}</a>
-    </div>
-</div>

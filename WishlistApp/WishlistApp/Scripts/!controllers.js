@@ -8,138 +8,245 @@
     return "/" + controllerName + "/" + actionName;
 }
 
+function getVisibilities()
+{
+    return [
+        { name: "Private", value: 0 },
+        { name: "Public", value: 1 },
+        { name: "Friend", value: 2 }
+    ];
+}
+
+function getVisibilityName(value)
+{
+    return ["Private", "Public", "Friend"][value];
+}
+
 var wishlistApp = angular.module("wishlistApp", []);
 
-wishlistApp.controller('listUsersController', function ($scope, $http)
+wishlistApp.controller("user-view-controller", function ($scope, $http)
 {
-    $scope.users = [];
-
-    $http.post(urlFor("GetUserInfos", "Home"), {})
-        .success(function (data, status, headers, config)
-        {
-            $scope.users = data.Users;
-        });
-
-    $scope.viewUser = function (userId)
-    {
-        window.location.href = urlFor("ViewUser", "Wishlist") + "?ID=" + userId;
-    }
-});
-
-wishlistApp.controller('viewPublicWishlistsController', function ($scope, $http)
-{
-    $scope.Wishlists = [];
-
     // $scope.userId is set in ng-init attribute
-    $http.post(urlFor("GetPublicWishlists", "Wishlist"), { ID: $scope.userId })
+    $http.post(urlFor("GetUserInfo", "User"), { userId: $scope.userId })
         .success(function (data, status, headers, config)
         {
-            $scope.Wishlists = data.Wishlists;
+            $scope.Info = data;
+            $scope.Info.CreationDate = new Date($scope.Info.CreationDate + " UTC").toLocaleString();
+        });
+
+    $http.post(urlFor("GetFriendshipStatus", "Friendship"), { userId: $scope.userId })
+        .success(function (data, status, headers, config)
+        {
+            $scope.Friendship = data;
+
+            $scope.befriend = function (befriend)
+            {
+                $http.post(urlFor("Befriend", "Friendship"), { userId: $scope.userId, befriend: befriend })
+                    .success(function (data, status, headers, config)
+                    {
+                        if (data.Success)
+                            $scope.Friendship = data;
+                    });
+            }
         });
 });
 
-wishlistApp.controller("wishlistsController", function ($scope, $http)
+wishlistApp.controller("roll-view-controller", function ($scope, $http)
 {
-    $scope.Wishlists = [];
+    $scope.visibilities = getVisibilities();
 
-    $http.post(urlFor("GetWishlists", "Wishlist"), {})
-        .success(function (data, status, headers, config)
+    var getRolls = function ()
+    {
+        $http.post(urlFor("GetRollsFor", "Roll"), { userId: $scope.userId })
+            .success(function (data, status, headers, config)
+            {
+                $scope.UserName = data.UserName;
+                $scope.Rolls = data.Rolls;
+                $scope.Rolls.forEach(function (roll)
+                {
+                    roll.Time = new Date(roll.TimeUtc + " UTC").toLocaleString();
+
+                    roll.editor = {
+                        controlVisible: false,
+                        tempContent: roll.Content,
+                        showControl: function ()
+                        {
+                            this.tempContent = roll.Content;
+                            this.controlVisible = true;
+                        },
+                        cancelEdit: function ()
+                        {
+                            this.controlVisible = false;
+                        },
+                        submitEdit: function ()
+                        {
+                            var param = {
+                                rollId: roll.RollId,
+                                model: { Content: this.tempContent }
+                            };
+                            $http.post(urlFor("EditRoll", "Roll"), param)
+                                .success(function (data, status, headers, config)
+                                {
+                                    roll.Content = roll.editor.tempContent;
+                                    roll.editor.controlVisible = false;
+                                });
+                        },
+                        switchVisibility: function ()
+                        {
+                            var tempVisibility = (roll.Visibility + 1) % 3;
+                            var param = {
+                                rollId: roll.RollId,
+                                visibility: tempVisibility
+                            };
+                            $http.post(urlFor("ChangeRollVisibility", "Roll"), param)
+                                .success(function (data, status, headers, config)
+                                {
+                                    roll.Visibility = tempVisibility;
+                                    roll.VisibilityString = getVisibilityName(roll.Visibility);
+                                });
+                        },
+                    };
+                });
+
+                $scope.Success = data.Success;
+            });
+    };
+
+    getRolls();
+
+    $scope.adder = {
+        controlVisible: false,
+        content: "",
+        visibility: 0,
+        showControl: function ()
         {
-            $scope.Wishlists = data.Wishlists;
-
-            $scope.addWishlist = function ()
-            {
-                $http.post(urlFor("NewWishlist", "Wishlist"), {})
-                    .success(function (data, status, headers, config)
-                    {
-                        if (data.Success)
-                            $scope.Wishlists.push(data.Result);
-                        else
-                            console.warn(data.Exception);
-                    });
+            this.controlVisible = true;
+        },
+        submit: function ()
+        {
+            var param = {
+                model: { Content: this.content },
+                visibility: this.visibility
             };
+            $http.post(urlFor("AddRoll", "Roll"), param)
+                .success(function (data, status, headers, config)
+                {
+                    this.content = "";
+                    getRolls();
+                });
+        }
+    };
+});
 
-            $scope.changeWishlist = function (wl)
-            {
-                $http.post(urlFor("ChangeWishlist", "Wishlist"), wl.Info)
-                    .success(function (data, status, headers, config)
-                    {
-                        if (data.Success)
-                            ;
-                        else
-                            console.warn(data.Exception);
-                    });
-            }
+wishlistApp.controller("wishlist-view-controller", function ($scope, $http)
+{
+    $scope.visibilities = getVisibilities();
 
-            $scope.toggleWishlistVisibility = function (wl)
+    var getWishlists = function ()
+    {
+        $http.post(urlFor("GetWishlistsFor", "Wishlist"), { userId: $scope.userId })
+            .success(function (data, status, headers, config)
             {
-                wl.Info.IsPublic = !wl.Info.IsPublic;
-                $http.post(urlFor("ChangeWishlist", "Wishlist"), wl.Info)
-                    .success(function (data, status, headers, config)
-                    {
-                        if (data.Success)
-                            ;
-                        else
-                            console.warn(data.Exception);
-                    });
-            }
+                $scope.UserName = data.UserName;
+                $scope.Wishlists = data.Wishlists;
+                $scope.Wishlists.forEach(function (wl)
+                {
+                    wl.Time = new Date(wl.TimeUtc + " UTC").toLocaleString();
 
-            $scope.removeWishlist = function (wl)
-            {
-                $http.post(urlFor("RemoveWishlist", "Wishlist"), { ID: wl.Info.ID })
-                    .success(function (data, status, headers, config)
-                    {
-                        if (data.Success)
+                    wl.deleter = {
+                        delete: function ()
                         {
-                            var index = $scope.Wishlists.indexOf(wl);
-                            if (index >= 0)
-                                $scope.Wishlists.splice(index, 1);
+                            $http.post(urlFor("RemoveWishlist", "Wishlist"), { wishlistId: wl.WishlistId })
+                                .success(function (data, status, headers, config)
+                                {
+                                    getWishlists();
+                                });
                         }
-                        else
-                            console.warn(data.Exception);
-                    });
-            }
+                    };
 
-            $scope.addWishlistItem = function (wl)
-            {
-                $http.post(urlFor("NewWishlistItem", "Wishlist"), { ID: wl.Info.ID })
-                    .success(function (data, status, headers, config)
-                    {
-                        if (data.Success)
-                            wl.WishlistItems.push(data.Result);
-                        else
-                            console.warn(data.Exception);
-                    });
-            };
-
-            $scope.changeWishlistItem = function (wli)
-            {
-                $http.post(urlFor("ChangeWishlistItem", "Wishlist"), wli)
-                    .success(function (data, status, headers, config)
-                    {
-                        if (data.Success)
-                            ;
-                        else
-                            console.warn(data.Exception);
-                    });
-            };
-
-            $scope.removeWishlistItem = function (wli, wl)
-            {
-                $http.post(urlFor("RemoveWishlistItem", "Wishlist"), { ID: wli.ID })
-                    .success(function (data, status, headers, config)
-                    {
-                        if (data.Success)
+                    wl.editor = {
+                        switchVisibility: function ()
                         {
-                            var index = wl.WishlistItems.indexOf(wli);
-                            if (index >= 0)
-                                wl.WishlistItems.splice(index, 1);
-                        }
-                        else
-                            console.warn(data.Exception);
-                    });
+                            var tempVisibility = (wl.Visibility + 1) % 3;
+                            var param = {
+                                wishlistId: wl.WishlistId,
+                                visibility: tempVisibility
+                            };
+                            $http.post(urlFor("ChangeWishlistVisibility", "Wishlist"), param)
+                                .success(function (data, status, headers, config)
+                                {
+                                    wl.Visibility = tempVisibility;
+                                    wl.VisibilityString = getVisibilityName(wl.Visibility);
+                                });
+                        },
+                    };
+                });
+
+                $scope.Success = data.Success;
+            });
+    };
+
+    getWishlists();
+
+    $scope.adder = {
+        controlVisible: false,
+        content: {
+            Title: "",
+            WishlistItems: []
+        },
+        visibility: 0,
+        showControl: function ()
+        {
+            this.controlVisible = true;
+        },
+        add: function ()
+        {
+            this.content.WishlistItems.push({ Content: "" });
+        },
+        removeLast: function ()
+        {
+            this.content.WishlistItems.pop();
+        },
+        submit: function ()
+        {
+            var param = {
+                model: this.content,
+                visibility: this.visibility
             };
-        });
+            $http.post(urlFor("AddWishlist", "Wishlist"), param)
+                .success(function (data, status, headers, config)
+                {
+                    $scope.adder.content = {
+                        Title: "",
+                        WishlistItems: []
+                    };
+                    getWishlists();
+                });
+        }
+    };
+});
+
+wishlistApp.controller("friendship-search-controller", function ($scope, $http)
+{
+    $scope.UserNameModel = "";
+
+    $scope.searchUser = function ()
+    {
+        $scope.Success = undefined;
+
+        $http.post(urlFor("SearchUser", "Friendship"), { userName: $scope.UserNameModel })
+            .success(function (data, status, headers, config)
+            {
+                $scope.Query = $scope.UserNameModel;
+                $scope.Users = data.Users;
+                $scope.Users.forEach(function (user)
+                {
+                    user.CreationDate = new Date(user.CreationDate + " UTC").toLocaleString();
+                });
+
+                $scope.Success = data.Success;
+            });
+    };
 });
 
 

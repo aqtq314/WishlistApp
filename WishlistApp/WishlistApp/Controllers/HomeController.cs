@@ -14,27 +14,6 @@ namespace WishlistApp.Controllers
             return View();
         }
 
-        public ActionResult GetUserInfos()
-        {
-            using (var db = new WishlistContext())
-            {
-                var userInfosJsonModel = new UserInfoCollectionJsonModel
-                {
-                    Users =
-                        db.UserProfiles
-                        .AsEnumerable()
-                        .Select(u => new UserInfoJsonModel
-                        {
-                            ID = u.UserId,
-                            UserName = u.UserName
-                        })
-                        .ToArray()
-                };
-
-                return Json(userInfosJsonModel);
-            }
-        }
-
         public ActionResult About()
         {
             ViewBag.Message = "Your app description page.";

@@ -11,6 +11,7 @@ using WebMatrix.WebData;
 using WishlistApp.Filters;
 using WishlistApp.Models;
 using WishlistApp.Lib;
+using WishlistApp.Util;
 
 namespace WishlistApp.Controllers
 {
@@ -200,68 +201,6 @@ namespace WishlistApp.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
-        }
-
-
-
-        //
-        // POST: /Account/ChangeProfilePhoto
-
-        public ActionResult GetProfilePhoto()
-        {
-            using (var db = new WishlistContext())
-            {
-                var userID = WebSecurity.CurrentUserId;
-                var user = db.webpages_Membership.FirstOrDefault(u => u.UserId == userID);
-
-                if (user == null)
-                {
-                    return HttpNotFound();
-                }
-                else
-                {
-                    var picture = user.ProfilePicture128;
-                    return File(picture, "image/jpeg");
-                }
-            }
-        }
-
-        //
-        // POST: /Account/ChangeProfilePhoto
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult ChangeProfilePhoto(HttpPostedFileBase image)
-        {
-            using (var db = new WishlistContext())
-            {
-                var userID = WebSecurity.CurrentUserId;
-                var user = db.webpages_Membership.FirstOrDefault(u => u.UserId == userID);
-
-                if (user == null)
-                {
-                    ModelState.AddModelError("", "The current user does not exist.");
-                    return View();
-                }
-                else
-                {
-                    try
-                    {
-                        var origImg = new Image(image.InputStream);
-                        var img128 = origImg.Resize(128, 128).SerializeJpeg();
-                        var img32 = origImg.Resize(32, 32).SerializeJpeg();
-                        user.ProfilePicture128 = img128;
-                        user.ProfilePicture32 = img32;
-                        db.SaveChanges();
-                        return RedirectToAction("Manage", new { Message = ManageMessageId.ChangeProfilePhotoSuccess });
-                    }
-                    catch (Exception ex)
-                    {
-                        ModelState.AddModelError("", ex.Message);
-                        return View();
-                    }
-                }
-            }
         }
 
         //

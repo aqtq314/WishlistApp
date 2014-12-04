@@ -12,20 +12,20 @@ namespace WishlistApp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Wishlist
+    public partial class Picture
     {
-        public Wishlist()
+        public Picture()
         {
-            this.WishlistItems = new HashSet<WishlistItem>();
+            this.ProfilePictures = new HashSet<ProfilePicture>();
         }
     
-        public int WishlistId { get; set; }
+        public int PictureId { get; set; }
         public int UserId { get; set; }
+        public byte[] Thumbnail128 { get; set; }
+        public byte[] Content { get; set; }
         public System.DateTime TimeUtc { get; set; }
-        public byte Visibility { get; set; }
-        public string Title { get; set; }
     
         public virtual UserProfile UserProfile { get; set; }
-        public virtual ICollection<WishlistItem> WishlistItems { get; set; }
+        public virtual ICollection<ProfilePicture> ProfilePictures { get; set; }
     }
 }

@@ -1,0 +1,56 @@
+﻿@model WishlistApp.Models.UserInfoJsonModel
+@{
+    ViewBag.Title = Model.UserName + "'s Rolls";
+}
+
+<div ng-init="userId = @Model.ID; isSelf = @(Model.IsSelf ? "true" : "false")">
+    <div class="page-container" ng-controller="roll-view-controller">
+        <div class="float-left profile-photo">
+            <a href="/User/?userId=@Model.ID">
+                <img src="/User/GetProfilePhoto?userId=@Model.ID" />
+            </a>
+        </div>
+        <div class="float-left page-content">
+            <h2 class="page-title">@Model.UserName's Rolls</h2>
+            <div class="clear-both" ng-hide="Success">
+                <div class="small">Loading ...</div>
+            </div>
+            <div class="clear-both" ng-show="Success">
+                <div ng-show="isSelf">
+                    <h3 ng-hide="adder.controlVisible">
+                        <a href="" ng-click="adder.showControl()">Add new roll</a>
+                    </h3>
+                    <div ng-show="adder.controlVisible">
+                        <form ng-submit="adder.submit()">
+                            <textarea class="page-content" ng-model="adder.content"></textarea>
+                            <select class="float-left" ng-model="adder.visibility" ng-options="v.value as v.name for v in visibilities"></select>
+                            <input class="float-right" type="submit" value="Add Roll" />
+                            <div class="clear-both"></div>
+                        </form>
+                    </div>
+                </div>
+                <div ng-repeat="r in Rolls">
+                    <h2></h2>
+                    <div class="small with-bottom-border">
+                        <span ng-hide="isSelf">{{r.VisibilityString}}</span>
+                        <a ng-show="isSelf" href="" ng-click="r.editor.switchVisibility()">{{r.VisibilityString}}</a>
+                        <span> | </span>
+                        <span>{{r.Time}}</span>
+                        <div class="float-right" ng-show="isSelf">
+                            <a href="" ng-hide="r.editor.controlVisible" ng-click="r.editor.showControl()">Edit</a>
+                        </div>
+                    </div>
+                    <div class="roll" ng-hide="r.editor.controlVisible">{{r.Content}}</div>
+                    <form ng-show="r.editor.controlVisible" ng-submit="r.editor.submitEdit()">
+                        <textarea class="page-content" ng-model="r.editor.tempContent"></textarea>
+                        <div class="float-right">
+                            <a href="" ng-click="r.editor.cancelEdit()">Cancel</a>
+                            <input type="submit" value="Submit Changes" />
+                        </div>
+                        <div class="clear-both"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

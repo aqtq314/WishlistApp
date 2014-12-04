@@ -5,20 +5,28 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="d979fe39e279424cb4a0f5dde1ccb6f7" Name="Diagram1" ZoomLevel="100">
-        <EntityTypeShape EntityType="Model.Friendship" Width="1.5" PointX="7.5" PointY="8.375" />
-        <EntityTypeShape EntityType="Model.FriendshipRequest" Width="1.5" PointX="5.25" PointY="8.375" />
-        <EntityTypeShape EntityType="Model.UserProfile" Width="1.5" PointX="3.125" PointY="7.25" />
-        <EntityTypeShape EntityType="Model.webpages_Membership" Width="1.5" PointX="0.75" PointY="10.25" />
-        <EntityTypeShape EntityType="Model.webpages_OAuthMembership" Width="1.5" PointX="0.75" PointY="5.875" />
-        <EntityTypeShape EntityType="Model.webpages_Roles" Width="1.5" PointX="0.75" PointY="8.125" />
-        <EntityTypeShape EntityType="Model.Wishlist" Width="1.5" PointX="5.25" PointY="5.375" />
-        <EntityTypeShape EntityType="Model.WishlistItem" Width="1.5" PointX="7.5" PointY="5.625" />
-        <AssociationConnector Association="Model.FK__Friendshi__UserI__44FF419A" />
-        <AssociationConnector Association="Model.FK__Friendshi__UserI__45F365D3" />
-        <AssociationConnector Association="Model.FK__Friendshi__Recei__4AB81AF0" />
-        <AssociationConnector Association="Model.FK__Friendshi__Sende__49C3F6B7" />
-        <AssociationConnector Association="Model.FK__webpages___UserI__4F7CD00D" />
+        <EntityTypeShape EntityType="Model.Friendship" Width="1.5" PointX="5.25" PointY="20.5" />
+        <EntityTypeShape EntityType="Model.FriendshipRequest" Width="1.5" PointX="5.25" PointY="17.875" />
+        <EntityTypeShape EntityType="Model.Picture" Width="1.5" PointX="5.25" PointY="9" />
+        <EntityTypeShape EntityType="Model.ProfilePicture" Width="1.5" PointX="7.5" PointY="10.5" />
+        <EntityTypeShape EntityType="Model.Roll" Width="1.5" PointX="5.25" PointY="12.125" />
+        <EntityTypeShape EntityType="Model.UserProfile" Width="1.5" PointX="3" PointY="10.375" />
+        <EntityTypeShape EntityType="Model.webpages_Membership" Width="1.5" PointX="5.25" PointY="1.875" />
+        <EntityTypeShape EntityType="Model.webpages_OAuthMembership" Width="1.5" PointX="5.25" PointY="15.25" />
+        <EntityTypeShape EntityType="Model.webpages_Roles" Width="1.5" PointX="0.75" PointY="11.375" />
+        <EntityTypeShape EntityType="Model.Wishlist" Width="1.5" PointX="5.25" PointY="5.875" />
+        <EntityTypeShape EntityType="Model.WishlistItem" Width="1.5" PointX="7.5" PointY="6.25" />
+        <AssociationConnector Association="Model.FK__Friendshi__UserI__628FA481" />
+        <AssociationConnector Association="Model.FK__Friendshi__UserI__6383C8BA" />
+        <AssociationConnector Association="Model.FK__Friendshi__Recei__68487DD7" />
+        <AssociationConnector Association="Model.FK__Friendshi__Sende__693CA210" />
+        <AssociationConnector Association="Model.FK__Picture__UserId__778AC167" />
+        <AssociationConnector Association="Model.FK__ProfilePi__Pictu__08B54D69" />
+        <AssociationConnector Association="Model.FK__ProfilePi__UserI__09A971A2" />
+        <AssociationConnector Association="Model.FK__Roll__UserId__6EF57B66" />
+        <AssociationConnector Association="Model.FK__Roll__UserId__6FE99F9F" />
         <AssociationConnector Association="Model.FK__webpages___UserI__5070F446" />
+        <AssociationConnector Association="Model.FK__webpages___UserI__74AE54BC" />
         <AssociationConnector Association="Model.UserId" />
         <AssociationConnector Association="Model.WishlistId" />
         <AssociationConnector Association="Model.webpages_UsersInRoles" />

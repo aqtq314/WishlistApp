@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Web;
 using System.Web.Mvc;
 using WebMatrix.WebData;
 using WishlistApp.Filters;
+using WishlistApp.Lib;
 using WishlistApp.Models;
+using WishlistApp.Util;
 
 namespace WishlistApp.Controllers
 {
@@ -13,323 +16,172 @@ namespace WishlistApp.Controllers
     [InitializeSimpleMembership]
     public class WishlistController : Controller
     {
-        public ActionResult Index()
+        public ActionResult Index(int? userId)
         {
-            return View();
-        }
-
-        //[AllowAnonymous]
-        public ActionResult ViewUser(UserInfoIDModel ureq)
-        {
-            using (var db = new WishlistContext())
+            return Context.New((db, currUserId) =>
             {
-                var userProfile = db.UserProfiles.FirstOrDefault(u => u.UserId == ureq.ID);
+                int userIdNonNull = userId ?? currUserId;
 
                 var userModel = new UserInfoJsonModel
                 {
-                    ID = ureq.ID,
-                    UserName = userProfile == null ? "" : userProfile.UserName
+                    ID = userIdNonNull,
+                    UserName = DbHelper.GetUserName(userIdNonNull, db),
+                    IsSelf = currUserId == userIdNonNull
                 };
 
                 return View(userModel);
-            }
+            });
         }
 
-        public ActionResult GetPublicWishlists(UserInfoIDModel ureq)
+        public ActionResult GetWishlistsFor(int userId)
         {
-            using (var db = new WishlistContext())
+            return Context.New((db, currUserId) =>
             {
-                var userProfile = db.UserProfiles.FirstOrDefault(u => u.UserId == ureq.ID);
+                var userName = DbHelper.GetUserName(userId, db);
 
-                var userName = userProfile == null ? null : userProfile.UserName;
+                var areFriends = DbHelper.AreFriends(currUserId, userId, db);
 
-                var jsonModel = new UserJsonModel
-                {
-                    UserID = ureq.ID,
-                    UserName = userName,
-                    Wishlists =
-                        db.Wishlists
-                        .Where(wl => wl.UserId == ureq.ID && wl.IsPublic)
-                        .AsEnumerable()
-                        .Select(wl => new WishlistFullJsonModel
-                        {
-                            Info = new WishlistJsonModel
+                var wishlists =
+                    db.Wishlists
+                    .Where(wl => wl.UserId == userId)
+                    .Where(
+                        userId == currUserId ?
+                        (Expression<Func<Wishlist, bool>>)(wl => true) :
+                        areFriends ?
+                        (Expression<Func<Wishlist, bool>>)(wl =>
+                            wl.Visibility == (byte)Visibility.Public || wl.Visibility == (byte)Visibility.Friend) :
+                        (Expression<Func<Wishlist, bool>>)(wl =>
+                            wl.Visibility == (byte)Visibility.Public))
+                    .GroupJoin(
+                        db.WishlistItems,
+                        wl => wl.WishlistId,
+                        wli => wli.WishlistId,
+                        (wl, wli) => new { wl.WishlistId, wl.Title, wl.TimeUtc, wl.Visibility, WishlistItems = wli })
+                    .AsEnumerable()
+                    .OrderByDescending(wl => wl.TimeUtc)
+                    .Select(g => new
+                    {
+                        g.WishlistId,
+                        g.Title,
+                        g.Visibility,
+                        VisibilityString = ((Visibility)g.Visibility).ToString(),
+                        TimeUtc = g.TimeUtc.ToString(),
+                        WishlistItems =
+                            g.WishlistItems.Select(wli => new
                             {
-                                ID = wl.WishlistId,
-                                Title = wl.WishlistTitle,
-                                IsPublic = wl.IsPublic
-                            },
-                            WishlistItems =
-                                wl.WishlistItems
-                                .AsEnumerable()
-                                .Select(wli => new WishlistItemJsonModel
-                                {
-                                    ID = wli.WishlistItemId,
-                                    Content = wli.WishlistItemContent
-                                })
-                                .ToArray()
-                        })
-                        .ToArray()
-                };
-
-                return Json(jsonModel);
-            }
-        }
-
-        public ActionResult GetWishlists()
-        {
-            var userid = WebSecurity.CurrentUserId;
-
-            using (var db = new WishlistContext())
-            {
-                var jsonModel = new UserJsonModel
-                {
-                    UserID = userid,
-                    UserName = WebSecurity.CurrentUserName,
-                    Wishlists =
-                        db.Wishlists
-                        .Where(wl => wl.UserId == userid)
-                        .AsEnumerable()
-                        .Select(wl => new WishlistFullJsonModel
-                        {
-                            Info = new WishlistJsonModel
-                            {
-                                ID = wl.WishlistId,
-                                Title = wl.WishlistTitle,
-                                IsPublic = wl.IsPublic
-                            },
-                            WishlistItems =
-                                wl.WishlistItems
-                                .AsEnumerable()
-                                .Select(wli => new WishlistItemJsonModel
-                                {
-                                    ID = wli.WishlistItemId,
-                                    Content = wli.WishlistItemContent
-                                })
-                                .ToArray()
-                        })
-                        .ToArray()
-                };
-
-                return Json(jsonModel);
-            }
-        }
-
-        public ActionResult NewWishlist()
-        {
-            using (var db = new WishlistContext())
-            {
-                var wl = new Models.Wishlist
-                {
-                    UserId = WebSecurity.CurrentUserId,
-                    WishlistTitle = "New Wishlist"
-                };
-                db.Wishlists.Add(wl);
-                db.SaveChanges();
+                                wli.WishlistItemId,
+                                wli.Content
+                            })
+                            .ToList()
+                    })
+                    .ToList();
 
                 return Json(new
                 {
                     Success = true,
-                    Result = new WishlistFullJsonModel
-                    {
-                        Info = new WishlistJsonModel
-                        {
-                            ID = wl.WishlistId,
-                            Title = wl.WishlistTitle,
-                            IsPublic = wl.IsPublic
-                        },
-                        WishlistItems = new WishlistItemJsonModel[] { }
-                    }
+                    UserName = userName,
+                    Wishlists = wishlists
                 });
-            }
+            });
         }
 
-        public ActionResult ChangeWishlist(WishlistJsonModel model)
+        public ActionResult AddWishlist(WishlistEditModel model, byte visibility)
         {
-            using (var db = new WishlistContext())
+            return Context.New((db, currUserId) =>
             {
-                var wl = db.Wishlists.FirstOrDefault(wl2 => wl2.WishlistId == model.ID);
+                var wl = db.Wishlists.Add(new Wishlist
+                {
+                    UserId = currUserId,
+                    Title = model.Title,
+                    Visibility = visibility,
+                    TimeUtc = DateTime.UtcNow
+                });
 
-                if (wl == null)
+                if (model.WishlistItems == null)
+                    model.WishlistItems = new WishlistEditModel.WishlistItemEditModel[] { };
+
+                model.WishlistItems
+                .Select(wli => new WishlistItem
                 {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = "Invalid wishlist id."
-                    });
-                }
-                else if (wl.UserId != WebSecurity.CurrentUserId)
-                {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = "Change requested by an unauthorized user."
-                    });
-                }
-                else
-                {
-                    wl.WishlistTitle = model.Title;
-                    wl.IsPublic = model.IsPublic;
-                    db.SaveChanges();
-                    return Json(new
-                    {
-                        Success = true
-                    });
-                }
-            }
+                    Wishlist = wl,
+                    Content = wli.Content
+                })
+                .ForEachIgnore(db.WishlistItems.Add);
+
+                db.SaveChanges();
+
+                return Json(new { Success = true });
+            });
         }
 
-        public ActionResult RemoveWishlist(WishlistIDModel wlreq)
+        public ActionResult ChangeWishlistVisibility(int wishlistId, byte visibility)
         {
-            using (var db = new WishlistContext())
+            return Context.New((db, currUserId) =>
             {
-                var wl = db.Wishlists.FirstOrDefault(wl2 => wl2.WishlistId == wlreq.ID);
-
-                if (wl == null)
-                {
-                    return Json(new
+                return db.Wishlists
+                    .FirstOrDefault(wl => wl.WishlistId == wishlistId)
+                    .AsJsonComputation()
+                    .NotNull()
+                    .Authorized(wl => wl.UserId, currUserId)
+                    .Out(wl =>
                     {
-                        Success = false,
-                        Exception = "Invalid wishlist id."
+                        wl.Visibility = visibility;
+                        db.SaveChanges();
+                        return Json(new { Success = true });
                     });
-                }
-                else if (wl.UserId != WebSecurity.CurrentUserId)
-                {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = "Removal requested by an unauthorized user."
-                    });
-                }
-                else
-                {
-                    foreach (var wli in wl.WishlistItems.ToList())
-                        db.WishlistItems.Remove(wli);
-                    db.Wishlists.Remove(wl);
-                    db.SaveChanges();
-
-                    return Json(new
-                    {
-                        Success = true
-                    });
-                }
-            }
+            });
         }
 
-        public ActionResult NewWishlistItem(WishlistIDModel wlreq)
+        public ActionResult EditWishlist(int wishlistId, WishlistEditModel model)
         {
-            using (var db = new WishlistContext())
+            return Context.New((db, currUserId) =>
             {
-                var wl = db.Wishlists.FirstOrDefault(wl2 => wl2.WishlistId == wlreq.ID);
+                return db.Wishlists
+                    .FirstOrDefault(wl2 => wl2.WishlistId == wishlistId)
+                    .AsJsonComputation()
+                    .NotNull()
+                    .Authorized(wl => wl.UserId, currUserId)
+                    .Out(wl =>
+                    {
+                        wl.Title = model.Title;
 
-                if (wl == null)
-                {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = "Invalid wishlist id."
-                    });
-                }
-                else if (wl.UserId != WebSecurity.CurrentUserId)
-                {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = "Add requested by an unauthorized user."
-                    });
-                }
-                else
-                {
-                    var wli = new Models.WishlistItem
-                    {
-                        WishlistId = wl.WishlistId,
-                        WishlistItemContent = "New Wishlist Item"
-                    };
+                        wl.WishlistItems.ForEachIgnore(
+                            db.WishlistItems.Remove);
 
-                    db.WishlistItems.Add(wli);
-                    db.SaveChanges();
+                        model.WishlistItems
+                            .Select(wli => new WishlistItem
+                            {
+                                Content = wli.Content,
+                                Wishlist = wl
+                            })
+                            .ForEachIgnore(db.WishlistItems.Add);
 
-                    return Json(new
-                    {
-                        Success = true,
-                        Result = new WishlistItemJsonModel
-                        {
-                            ID = wli.WishlistItemId,
-                            Content = wli.WishlistItemContent
-                        }
+                        db.SaveChanges();
+
+                        return Json(new { Success = true });
                     });
-                }
-            }
+            });
         }
 
-        public ActionResult ChangeWishlistItem(WishlistItemJsonModel wlireq)
+        public ActionResult RemoveWishlist(int wishlistId)
         {
-            using (var db = new WishlistContext())
+            return Context.New((db, currUserId) =>
             {
-                var wli = db.WishlistItems.FirstOrDefault(wli2 => wli2.WishlistItemId == wlireq.ID);
+                return db.Wishlists
+                    .FirstOrDefault(wl2 => wl2.WishlistId == wishlistId)
+                    .AsJsonComputation()
+                    .NotNull()
+                    .Authorized(wl => wl.UserId, currUserId)
+                    .Out(wl =>
+                    {
+                        wl.WishlistItems.ToList().ForEachIgnore(
+                            db.WishlistItems.Remove);
+                        db.Wishlists.Remove(wl);
+                        db.SaveChanges();
 
-                if (wli == null)
-                {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = "Invalid wishlist item id."
+                        return Json(new { Success = true });
                     });
-                }
-                else if (wli.Wishlist.UserId != WebSecurity.CurrentUserId)
-                {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = "Change requested by an unauthorized user."
-                    });
-                }
-                else
-                {
-                    wli.WishlistItemContent = wlireq.Content;
-                    db.SaveChanges();
-
-                    return Json(new
-                    {
-                        Success = true
-                    });
-                }
-            }
-        }
-
-        public ActionResult RemoveWishlistItem(WishlistItemIDModel wlireq)
-        {
-            using (var db = new WishlistContext())
-            {
-                var wli = db.WishlistItems.FirstOrDefault(wli2 => wli2.WishlistItemId == wlireq.ID);
-
-                if (wli == null)
-                {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = "Invalid wishlist item id."
-                    });
-                }
-                else if (wli.Wishlist.UserId != WebSecurity.CurrentUserId)
-                {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = "Removal requested by an unauthorized user."
-                    });
-                }
-                else
-                {
-                    db.WishlistItems.Remove(wli);
-                    db.SaveChanges();
-
-                    return Json(new
-                    {
-                        Success = true
-                    });
-                }
-            }
+            });
         }
     }
 }
