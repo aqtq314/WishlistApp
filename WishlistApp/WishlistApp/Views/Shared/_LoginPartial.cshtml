@@ -1,19 +1,30 @@
 ﻿@if (Request.IsAuthenticated)
 {
-    <text>
-        <span>Logged in as @(User.Identity.Name).</span>
-        @Html.ActionLink("Search user", "Search", "Friendship", routeValues: null, htmlAttributes: new { })
-        @Html.ActionLink("My account", "Manage", "Account", routeValues: null, htmlAttributes: new { })
-        @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
-        {
-            @Html.AntiForgeryToken()
-            <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
-        }
-    </text>
+    <section id="login">
+        <span>Logged in as <strong>@User.Identity.Name</strong>.</span>
+    </section>
+    <ul id="menu">
+        <li>
+            @Html.ActionLink("Search user", "Search", "Friendship", routeValues: null, htmlAttributes: new { })
+        </li>
+        <li>
+            @Html.ActionLink("Profile", "Index", "User", routeValues: null, htmlAttributes: new { })
+        </li>
+        <li>
+            @Html.ActionLink("Account", "Manage", "Account", routeValues: null, htmlAttributes: new { })
+        </li>
+        <li>
+            @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+            {
+                @Html.AntiForgeryToken()
+                <a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+            }
+        </li>
+    </ul>
 }
 else
 {
-    <ul>
+    <ul id="menu">
         <li>@Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
         <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
     </ul>

@@ -1,13 +1,13 @@
-﻿<h3>Change profile photo</h3>
+﻿<h2>Change profile photo</h2>
 
-@using (Html.BeginForm("ChangeProfilePhoto", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Html.BeginForm("ChangeProfilePhoto", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
     <fieldset>
         <legend>Change Password Form</legend>
         <ol>
             <li>
-                <img src="@Url.Action("GetProfilePhoto", "Account")"/>
+                <img src="@Url.Action("GetProfilePhoto", "User")"/>
             </li>
             <li>
                 <input type="file" name="image" />

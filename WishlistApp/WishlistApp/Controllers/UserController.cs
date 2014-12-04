@@ -74,13 +74,15 @@ namespace WishlistApp.Controllers
             });
         }
 
-        public ActionResult GetProfilePhoto(int userId)
+        public ActionResult GetProfilePhoto(int? userId)
         {
-            return Context.New<ActionResult>((db, _) =>
+            return Context.New<ActionResult>((db, currUserId) =>
             {
+                var userIdNonNull = userId ?? currUserId;
+
                 var picture =
                     db.ProfilePictures
-                    .Where(pp => pp.UserId == userId)
+                    .Where(pp => pp.UserId == userIdNonNull)
                     .Join(
                         db.Pictures,
                         pp => pp.PictureId,
@@ -109,7 +111,8 @@ namespace WishlistApp.Controllers
                     {
                         UserId = userID,
                         Thumbnail128 = img128,
-                        Content = imgOrig
+                        Content = imgOrig,
+                        TimeUtc = DateTime.UtcNow
                     });
 
                     var profilePicture =
@@ -120,7 +123,8 @@ namespace WishlistApp.Controllers
                         db.ProfilePictures.Add(new ProfilePicture
                         {
                             UserId = userID,
-                            Picture = picture
+                            Picture = picture,
+                            TimeUtc = DateTime.UtcNow
                         });
                     }
                     else
@@ -130,15 +134,11 @@ namespace WishlistApp.Controllers
 
                     db.SaveChanges();
 
-                    return Json(new { Success = true });
+                    return RedirectToAction("Manage", "Account");
                 }
                 catch (Exception ex)
                 {
-                    return Json(new
-                    {
-                        Success = false,
-                        Exception = ex.Message
-                    });
+                    throw ex;
                 }
             });
         }

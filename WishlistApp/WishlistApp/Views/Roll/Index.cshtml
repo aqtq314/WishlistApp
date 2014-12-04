@@ -6,7 +6,7 @@
 <div ng-init="userId = @Model.ID; isSelf = @(Model.IsSelf ? "true" : "false")">
     <div class="page-container" ng-controller="roll-view-controller">
         <div class="float-left profile-photo">
-            <a href="/User/?userId=@Model.ID">
+            <a class="profile-photo-a" href="/User/?userId=@Model.ID">
                 <img src="/User/GetProfilePhoto?userId=@Model.ID" />
             </a>
         </div>

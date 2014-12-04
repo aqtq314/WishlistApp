@@ -83,15 +83,15 @@ mark {
     text-align: center;
 }
 
-    .profile-photo a {
-        text-decoration: none;
-        padding: 0;
-        margin: 0;
-    }
+.profile-photo-a {
+    text-decoration: none;
+    padding: 0;
+    margin: 0;
+}
 
-        .profile-photo a:hover {
-            background: initial;
-        }
+    .profile-photo-a:hover {
+        background: initial;
+    }
 
 .profile-photo-small {
     margin: 25px 10px;
@@ -227,7 +227,7 @@ h5 a:link, h5 a:visited, h5 a:active {
 }
 
 header .content-wrapper {
-    padding-top: 20px;
+    padding-top: 15px;
 }
 
 footer {
@@ -298,27 +298,26 @@ footer {
 /* menu
 ----------------------------------------------------------*/
 ul#menu {
-    font-size: 1.3em;
-    font-weight: 600;
+    font-size: 1.5em;
+    font-weight: lighter;
     margin: 0 0 5px;
     padding: 0;
     text-align: right;
 }
 
     ul#menu li {
-        display: inline;
+        display: inline-block;
         list-style: none;
-        padding-left: 15px;
+        padding: 0 5px;
     }
 
         ul#menu li a {
             background: none;
-            color: #999;
             text-decoration: none;
         }
 
             ul#menu li a:hover {
-                color: #333;
+                background: #eee;
                 text-decoration: none;
             }
 
@@ -746,6 +745,7 @@ tr.pager td {
     /* login */
     #login {
         font-size: .85em;
+        color: #ccc;
         margin: 0 0 12px;
         text-align: center;
     }
@@ -904,13 +904,13 @@ tr.pager td {
         padding: 0;
     }
 
-    input.wishlist-title {
-        font-size: 1.5em;
-        font-weight: lighter;
-    }
+input.wishlist-title {
+    font-size: 1.5em;
+    font-weight: lighter;
+}
 
-    input.wishlist-item {
-        font-size: 1em;
-        font-weight: normal;
-        margin: 0 0 3px 0;
-    }
+input.wishlist-item {
+    font-size: 1em;
+    font-weight: normal;
+    margin: 0 0 3px 0;
+}
