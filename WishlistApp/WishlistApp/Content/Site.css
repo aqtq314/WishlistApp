@@ -893,13 +893,13 @@ tr.pager td {
         }
 }
 
-.page-content textarea, input[type="text"] {
+.page-content textarea, .page-content input[type="text"] {
     border: 0;
     padding: 0;
     overflow-y: auto;
 }
 
-    .page-content textarea:focus, input[type="text"]:focus {
+    .page-content textarea:focus, .page-content input[type="text"]:focus {
         border: 0;
         padding: 0;
     }

@@ -392,6 +392,7 @@
     <Content Include="Content\fonts\Calluna-Regular.otf.woff" />
     <Content Include="Content\fonts\Calluna-Semibold.otf.woff" />
     <Content Include="Content\fonts\Calluna-SemiboldIt.otf.woff" />
+    <None Include="Properties\PublishProfiles\wishroll %282%29.pubxml" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Scripts\i18n\angular-locale_aa-dj.js" />
     <Content Include="Scripts\i18n\angular-locale_aa-er.js" />
@@ -1195,7 +1196,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
